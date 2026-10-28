@@ -1,1 +1,125 @@
 
+HTML
+
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin the Bottle 💋</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#190c2c,#401044,#160b24);color:white;font-family:Arial,sans-serif;text-align:center;padding:25px 16px}
+h1{font-size:34px;color:#ff79c8;margin:15px 0}
+p{color:#ead7ee}
+.card{max-width:440px;margin:20px auto;background:#ffffff12;border:1px solid #ffffff25;border-radius:24px;padding:22px;box-shadow:0 12px 40px #0005}
+input,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #a46aab;background:#24132e;color:white;font-size:16px;margin:8px 0}
+button{border:0;border-radius:14px;padding:14px 20px;font-size:17px;font-weight:bold;cursor:pointer}
+.spin{background:linear-gradient(90deg,#ff4da6,#b54cff);color:white;width:100%;margin-top:18px}
+#arena{height:230px;display:flex;align-items:center;justify-content:center;position:relative}
+#bottle{font-size:130px;display:inline-block;transform:rotate(-45deg);filter:drop-shadow(0 0 15px #ff58bd)}
+#result{font-size:23px;font-weight:bold;color:#ff91d2;min-height:55px;margin:15px 0}
+.small{font-size:13px;color:#cbb5d5}
+</style>
+</head>
+<body>
+<h1>💋 SPIN THE BOTTLE</h1>
+<p>მეგობრები, საიდუმლოებები და გართობა!</p>
+
+<div class="card">
+<h2>👥 მოთამაშეები</h2>
+<p>ჩაწერე მოთამაშეების სახელები, თითოეულ ხაზზე ერთი სახელი.</p>
+<textarea id="names" rows="5">დავითი
+ანა
+გიორგი
+მარიამი</textarea>
+<button onclick="updatePlayers()" style="background:#fff;color:#66265e;width:100%">მოთამაშეების დამატება</button>
+<p id="count">მოთამაშეები: 4</p>
+</div>
+
+<div class="card">
+<h2>🍾 დაატრიალე ბოთლი!</h2>
+<div id="arena"><span id="bottle">🍾</span></div>
+<button class="spin" id="spin" onclick="spin()">🎯 დატრიალება</button>
+<div id="result">ვინ იქნება შემდეგი? 👀</div>
+<p id="challenge"></p>
+<p class="small">ითამაშეთ მეგობრებთან ერთად და პატივი ეცით ერთმანეთის საზღვრებს ❤️</p>
+</div>
+
+<script>
+let players=["დავითი","ანა","გიორგი","მარიამი"];
+let busy=false;
+let previous=-1;
+
+function updatePlayers(){
+ const list=document.getElementById("names").value
+ .split("\n").map(x=>x.trim()).filter(Boolean);
+ if(list.length<2){
+ document.getElementById("result").textContent="მინიმუმ 2 მოთამაშე ჩაწერე!";
+ return;
+ }
+ players=list;
+ previous=-1;
+ document.getElementById("count").textContent="მოთამაშეები: "+players.length;
+ document.getElementById("result").textContent="მზად ხართ სათამაშოდ! 🎉";
+ document.getElementById("challenge").textContent="";
+}
+
+function spin(){
+ if(busy)return;
+ if(players.length<2){updatePlayers();return;}
+ busy=true;
+ document.getElementById("spin").disabled=true;
+ document.getElementById("result").textContent="ბოთლი ტრიალებს... 🍾";
+ document.getElementById("challenge").textContent="";
+ let index;
+ do{index=Math.floor(Math.random()*players.length);}
+ while(index===previous && players.length>1);
+ previous=index;
+ let angle=1440+Math.random()*1440;
+ const bottle=document.getElementById("bottle");
+ bottle.style.transition="transform 4s cubic-bezier(.12,.75,.15,1)";
+ bottle.style.transform="rotate("+angle+"deg)";
+ setTimeout(()=>{
+ document.getElementById("result").textContent="💋 არჩევანი: "+players[index]+"!";
+ document.getElementById("challenge").textContent=
+ "აირჩიე: სიმართლე თუ გამოწვევა? 😈";
+ let old=document.getElementById("choices");
+ if(old)old.remove();
+ let choices=document.createElement("div");
+ choices.id="choices";
+ ["სიმართლე 🤫","გამოწვევა 🔥"].forEach((label,i)=>{
+ let b=document.createElement("button");
+ b.textContent=label;
+ b.style.cssText="margin:5px;background:"+(i?"#ff4da6":"#9d65ff")+";color:white";
+ b.onclick=()=>task(i);
+ choices.appendChild(b);
+ });
+ document.querySelector(".card:nth-of-type(2)").appendChild(choices);
+ busy=false;
+ document.getElementById("spin").disabled=false;
+ },4100);
+}
+
+function task(type){
+ const truth=[
+ "ვისი პირველი შთაბეჭდილება შეგეცვალა ყველაზე მეტად?",
+ "რა არის შენი ყველაზე დიდი საიდუმლო, რომლის გაზიარებაც გინდა?",
+ "რომელ ადამიანს დაურეკავდი შუაღამისას?",
+ "რა არის ყველაზე რომანტიკული რამ, რაც გაგიკეთებია?",
+ "ვინ გაგეცინა ან მოგეწონა პირველად ამ ჯგუფში?"
+ ];
+ const dare=[
+ "უთხარი ვინმეს გულწრფელი კომპლიმენტი!",
+ "იცეკვე 15 წამი მუსიკის გარეშე!",
+ "მოიყევი სასაცილო ამბავი შენი ცხოვრებიდან!",
+ "გააკეთე ყველაზე სასაცილო სახე!",
+ "იმღერე შენი საყვარელი სიმღერის ერთი სტრიქონი!"
+ ];
+ const arr=type?dare:truth;
+ document.getElementById("challenge").textContent=
+ (type?"🔥 გამოწვევა: ":"🤫 სიმართლე: ")+arr[Math.floor(Math.random()*arr.length)];
+}
+</script>
+</body>
+</html>
